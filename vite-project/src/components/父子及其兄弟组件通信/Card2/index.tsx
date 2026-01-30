@@ -24,6 +24,10 @@ interface Props {
 
 // 版本二
 const Card: React.FC<Props> = props => {
+  window.addEventListener("card-event-chlicked", e => {
+    console.log(e, "触发了");
+    console.log(e.params, "接收兄弟组件派发的参数传递");
+  });
   return (
     <div className="card">
       <h2>{props.title}</h2>

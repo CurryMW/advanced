@@ -1,4 +1,6 @@
-/* 创建一个全局的message组件 */
+/*
+ *创建一个全局的message组件
+ */
 
 import ReactDom from "react-dom/client";
 import "./index.css";
