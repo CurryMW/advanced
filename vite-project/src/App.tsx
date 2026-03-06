@@ -3,15 +3,15 @@ import "./App.css";
 /*
  * 使用 useSyncExternalStore
  */
-import { useHistory } from "./hooks/useHistory";
+import { useStorage } from "./hooks/useStorage";
 
 function App() {
-  const [url, push, replace] = useHistory();
+  const [res, setCount] = useStorage("count", { count: 0 });
   return (
     <div id="container">
-      <p>地址：{url}</p>
-      <button onClick={() => push("/x")}>push</button>
-      <button onClick={() => replace("/y")}>replace</button>
+      <p>地址：{res.count}</p>
+      <button onClick={() => setCount({ count: res.count + 1 })}>push</button>
+      <button onClick={() => setCount({ count: res.count - 1 })}>replace</button>
     </div>
   );
 }

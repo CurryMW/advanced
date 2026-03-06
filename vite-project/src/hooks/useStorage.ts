@@ -13,8 +13,19 @@ export function useStorage(key: string, initialValue: any) {
   }
 
   // 获取当前数据源的快照（当前状态）。
+  // 在这个函数中，我们从 localStorage 中获取数据，并返回一个快照对象。我们还使用了 lastSnapshot 和 lastCount 来缓存上一次的快照和计数，以避免不必要的重新渲染。
+  let lastSnapshot: any = null;
+  let lastCount: number | null = null;
   const getSnapshot = () => {
-    return [localStorage.getItem(key)];
+    const res = JSON.parse(localStorage.getItem(key)!) || initialValue;
+    console.log('res', res, lastSnapshot, lastCount);
+    if (lastSnapshot && lastCount === res.count) {
+      return lastSnapshot;
+    }
+    console.log('lastSnapshot', lastSnapshot, lastCount);
+    lastCount = res?.count;
+    lastSnapshot = { count: res?.count }
+    return lastSnapshot;
   }
 
   // 获取存储数据
