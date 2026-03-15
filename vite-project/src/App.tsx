@@ -1,44 +1,23 @@
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useReducer,
-  useState,
-  useDeferredValue,
-  useRef,
-  useContext,
-} from "react";
+import React, { useContext } from "react";
 import { Input, List } from "antd";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Mock from "mockjs";
+import ReactDemo from "./ReactDemo";
+import Error from "./Error";
 import "./App.css";
-/*
- * 使用 useContext 钩子函数，可以让我们在不编写许多包装组件的情况下读取 React 上下文(爷孙之间通信)
- */
 
-interface Theme {
-  theme: string;
-}
-
-// 定义一个 Context
-const ThemeContext = React.createContext({} as Theme);
-function Child() {
-  const theme = useContext(ThemeContext);
-  return (
-    <div>
-      Child
-      <div>{theme.theme}</div>
-    </div>
-  );
-}
+// browserRouter 使用history API 来保持 UI 和 URL 的同步。它适用于现代浏览器，支持 HTML5 history API（pushState, replaceState 和 popstate 事件）。如果你需要兼容老版本的浏览器，可以使用 HashRouter，它使用 URL 的 hash 部分来保持 UI 和 URL 的同步。
 
 function App() {
-  const [theme, setTheme] = useState("light");
   return (
-    <div id="container">
-      <ThemeContext value={{ theme: theme }}>
-        <Child />
-      </ThemeContext>
-      <button onClick={() => setTheme(theme == "light" ? "dark" : "light")}>点击</button>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/Add" element={<div>Add</div>}></Route>
+        <Route path="/List" element={<div>List</div>}></Route>
+        <Route path="/react" element={<ReactDemo>List</ReactDemo>}></Route>
+        <Route path="*" element={<Error></Error>}></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
