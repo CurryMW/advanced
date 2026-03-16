@@ -14,7 +14,6 @@ function App() {
       <Routes>
         <Route path="/Add" element={<div>Add</div>}></Route>
         <Route path="/List" element={<div>List</div>}></Route>
-        <Route path="/react" element={<ReactDemo>List</ReactDemo>}></Route>
         <Route path="*" element={<Error></Error>}></Route>
       </Routes>
     </BrowserRouter>
