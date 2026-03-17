@@ -1,0 +1,7 @@
+# misc
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+pnpm.lock
+.vscode/
