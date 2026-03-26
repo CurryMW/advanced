@@ -23,14 +23,6 @@ const React = {
   },
 };
 
-const vdom = React.createElement(
-  "div",
-  { id: "foo" },
-  "hello",
-  React.createElement("a", null, "world")
-);
-console.log("vdom", vdom);
-
 // 完成虚拟DOM 转Fiber结构 和 时间切片
 let nextUnitOfWork = null; // 下一个工作单元
 let wipRoot = null; // 工作中的根节点 fiber树
@@ -65,12 +57,12 @@ function createDom(fiber) {
 function updateDom(dom, prevProps, nextProps) {
   // 旧的属性删除，遍历旧的属性，不是children的属性，则删除为空
   Object.keys(prevProps)
-    .fiter(name => name !== "children")
+    .filter(name => name !== "children")
     .forEach(name => (dom[name] = ""));
 
   // 新的属性要添加
   Object.keys(nextProps)
-    .fiter(name => name !== "children")
+    .filter(name => name !== "children")
     .forEach(name => (dom[name] = nextProps[name]));
 }
 
@@ -81,6 +73,10 @@ function workLoop(deadline) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork); // 执行下一个工作单元
     showldYield = deadline.timeRemaining() < 1; // 如果剩余时间小于1毫秒，则暂停执行
     // 如果没有下一个工作单元，则跳出循环
+  }
+  // 没有下一个工作单元，则提交根节点
+  if (!nextUnitOfWork && wipRoot) {
+    commitRooet();
   }
   requestIdleCallback(workLoop); // 请求下一帧执行
 }
@@ -119,10 +115,11 @@ function reconcileChildren(fiber, elements) {
   let oldFiber = fiber.alternate && fiber.alternate.child; // 旧的fiber树的第一个子节点
   while (index < elements.length || oldFiber !== null) {
     const element = elements[index]; // 当前子节点
-    const newFiber = null;
+    let newFiber = null;
     // 复用: 比较新旧子节点是否相同，如果相同则复用旧fiber树的子节点
     const stameType = oldFiber && element && oldFiber.type === element.type; // 比较新旧子节点是否相同
     if (stameType) {
+      console.log("复用", newFiber);
       newFiber = {
         type: oldFiber.type,
         props: element.props, // 新子节点的props
@@ -134,17 +131,19 @@ function reconcileChildren(fiber, elements) {
     }
     // 新增
     if (element && !stameType) {
+      console.log("新增", element);
       newFiber = {
         type: element.type,
         props: element.props,
         parent: fiber,
-        dom: oldFiber.dom, // 复用旧fiber树的DOM节点
+        dom: null, // 新增的子节点，没有DOM节点
         effectTag: "PLACEMENT", // 新增标记
         alternate: oldFiber, // 旧fiber树对应的当前子节点
       };
     }
     // 删除
     if (oldFiber && !stameType) {
+      console.log("删除", oldFiber);
       deletions.push(oldFiber); // 将旧fiber树对应的当前子节点添加到删除列表中
     }
     if (oldFiber) oldFiber = oldFiber.sibling; // 移动到下一个旧fiber树对应的当前子节点
@@ -160,5 +159,29 @@ function reconcileChildren(fiber, elements) {
   }
 }
 
+// 操作真实DOM映射
+function commitRooet() {
+  deletions.forEach(commitWork); // 遍历删除列表，执行删除操作
+  commitWork(wipRoot.child); // 提交根节点的第一个子节点
+  currentRoot = wipRoot; // 更新当前根节点为新的根节点
+  wipRoot = null; // 更新工作单元为null
+}
+function commitWork(fiber) {
+  if (!fiber) return;
+  let domParentFiber = fiber.parent.dom; // 父节点的DOM节点
+  if (fiber.effectTag === "PLACEMENT" && fiber.dom !== null) {
+    domParentFiber.appendChild(fiber.dom); // 插入DOM节点
+  } else if (fiber.effectTag === "UPDATE" && fiber.dom !== null) {
+    updateDom(fiber.dom, fiber.alternate.props, fiber.props); // 更新DOM节点
+  } else if (fiber.effectTag === "DELETION") {
+    domParentFiber.removeChild(fiber.dom); // 删除DOM节点
+  }
+  commitWork(fiber.child); // 提交子节点
+  commitWork(fiber.sibling); // 提交兄弟节点
+}
+
 // 渲染函数
-render(vdom, document.getElementById("root"));
+render(React.createElement("div", { id: 1 }, React.createElement("h1", null, "Hello World")));
+setTimeout(() => {
+  render(React.createElement("div", { id: 1 }, React.createElement("p", null, "你好")));
+}, 1000);

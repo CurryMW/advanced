@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const channel = new MessageChannel();
+      channel.port1.onmessage = function (event) {
+        // 接收port2发送的消息
+        console.log(event.data);
+      };
+      // 发送消息到port1
+      channel.port2.postMessage("Hello, world!");
+    </script>
+  </body>
+</html>

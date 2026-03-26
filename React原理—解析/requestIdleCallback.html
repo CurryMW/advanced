@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>requestIdleCallback - 使用</title>
+  </head>
+  <body>
+    <script>
+      const nums = 6000; // 需要创建dom的数字
+      let arr = []; // 存放dom的数组
+      function generateDom() {
+        for (let i = 0; i < nums; i++) {
+          arr.push(function () {
+            const div = document.createElement("div");
+            div.innerText = i;
+            document.body.appendChild(div);
+          });
+        }
+      }
+      generateDom();
+      // 不在空闲时间执行时会导致页面卡顿
+      // arr.forEach(fn => {
+      //   fn();
+      // });
+      function workLoop(deadline) {
+        while (deadline.timeRemaining() > 1 && arr.length > 0) {
+          const fn = arr.shift();
+          fn();
+        }
+        requestIdleCallback(workLoop); // 放到每一帧空闲时执行
+      }
+      // 使用requestIdleCallback
+      requestIdleCallback(workLoop);
+    </script>
+  </body>
+</html>
